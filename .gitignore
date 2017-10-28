@@ -7,6 +7,7 @@
 # Files and directories created by pub
 .packages
 .pub/
+build/
 # If you're building an application, you may want to check-in your pubspec.lock
 pubspec.lock
 
@@ -15,7 +16,3 @@ pubspec.lock
 doc/api/
 
 # End of https://www.gitignore.io/api/dart
-
-# Normally this would be ignored but we need it for gh-pages-push.sh
-# Please don't otherwise commit things in here tho
-# build/
