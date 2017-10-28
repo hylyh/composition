@@ -1,0 +1,7 @@
+name: selfcarejam2
+description: game?
+dev_dependencies:
+  browser: any
+  dart_sass_transformer: any
+transformers:
+  - dart_sass_transformer
