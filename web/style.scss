@@ -26,3 +26,7 @@ body {
         border: 1px solid rgba(0, 0, 0, .2);
     }
 }
+
+[contenteditable="true"]:focus {
+    outline: none;
+}
