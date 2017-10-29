@@ -8,11 +8,15 @@ audio.AudioContext context;
 String baseUrl = './audio/';
 
 class RegExpToBuffer {
+  String description;
   RegExp regexp;
   audio.AudioBuffer buffer;
-  RegExpToBuffer(this.regexp, this.buffer);
+  RegExpToBuffer(this.description, this.regexp, this.buffer);
 
   bool matches(String text) => regexp.hasMatch(text);
+
+  @override
+  String toString() => description;
 }
 
 List<RegExpToBuffer> buffers = new List();
@@ -27,9 +31,8 @@ initAudio() async {
 
   var buffer = req.response as data.ByteBuffer;
   var audioBuffer = await context.decodeAudioData(buffer);
-
-  buffers.add(
-      new RegExpToBuffer(new RegExp(r'hi', caseSensitive: false), audioBuffer));
+  buffers.add(new RegExpToBuffer('First person (I)',
+      new RegExp(r"^i('?m)?$", caseSensitive: false), audioBuffer));
 }
 
 audio.AudioBufferSourceNode createSourceBuffer() {
@@ -43,7 +46,7 @@ play(String word) async {
   var foundBuffer =
       buffers.firstWhere((buffer) => buffer.matches(word), orElse: () => null);
   if (foundBuffer != null) {
-    print(1);
+    print('Matched $foundBuffer');
     createSourceBuffer()
       ..buffer = foundBuffer.buffer
       ..start(context.currentTime);
