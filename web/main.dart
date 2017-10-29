@@ -44,12 +44,12 @@ List<String> splitKeepChars(String text, Pattern splitChars) {
 }
 
 onSentence(String sentence) {
-  print('Sentence: $sentence');
+  print('Sentence: "$sentence"');
 }
 
 onWord(String word) {
-  print('Word: $word');
-  audio.play();
+  print('Word: "$word"');
+  audio.play(word);
 }
 
 /// Build the html based on what text is entered

@@ -1,13 +1,21 @@
-import 'dart:web_audio' as audio;
 import 'dart:html' as html;
 import 'dart:typed_data' as data;
+import 'dart:web_audio' as audio;
 
 import 'package:path/path.dart' as path;
 
 audio.AudioContext context;
 String baseUrl = './audio/';
 
-Map<String, audio.AudioBuffer> bufferSources = new Map();
+class RegExpToBuffer {
+  RegExp regexp;
+  audio.AudioBuffer buffer;
+  RegExpToBuffer(this.regexp, this.buffer);
+
+  bool matches(String text) => regexp.hasMatch(text);
+}
+
+List<RegExpToBuffer> buffers = new List();
 
 initAudio() async {
   context = new audio.AudioContext();
@@ -20,7 +28,8 @@ initAudio() async {
   var buffer = req.response as data.ByteBuffer;
   var audioBuffer = await context.decodeAudioData(buffer);
 
-  bufferSources['1'] = audioBuffer;
+  buffers.add(
+      new RegExpToBuffer(new RegExp(r'hi', caseSensitive: false), audioBuffer));
 }
 
 audio.AudioBufferSourceNode createSourceBuffer() {
@@ -30,8 +39,13 @@ audio.AudioBufferSourceNode createSourceBuffer() {
     ..onEnded.first.whenComplete(() => source.disconnect(context.destination));
 }
 
-play() async {
-  createSourceBuffer()
-    ..buffer = bufferSources['1']
-    ..start(context.currentTime);
+play(String word) async {
+  var foundBuffer =
+      buffers.firstWhere((buffer) => buffer.matches(word), orElse: () => null);
+  if (foundBuffer != null) {
+    print(1);
+    createSourceBuffer()
+      ..buffer = foundBuffer.buffer
+      ..start(context.currentTime);
+  }
 }
