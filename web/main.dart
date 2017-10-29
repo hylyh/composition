@@ -39,8 +39,12 @@ List<String> splitKeepChars(String text, Pattern splitChars) {
   return split;
 }
 
-doWord(String word) {
-  print(word);
+onSentence(String sentence) {
+  print('Sentence: $sentence');
+}
+
+onWord(String word) {
+  print('Word: $word');
 }
 
 /// Build the html based on what text is entered
@@ -80,13 +84,30 @@ buildOnTypeFunction(html.Element el) {
       // Typed one character
       var enteredChar = el.text[el.text.length - 1];
 
-      if (enteredChar.contains(seperatorsRegex)) {
+      if (enteredChar.contains(punctuationRegex)) {
+        // Punctuation, handle sentence
+        var split = el.text.split(punctuationRegex);
+
+        // Make sure that they haven't entered *just* a punctuation mark
+        if (split.length > 1) {
+          var lastSentence = split[split.length - 2];
+
+          if (lastSentence.trim().isNotEmpty) {
+            onSentence(lastSentence);
+          }
+        }
+
+      } else if (enteredChar.contains(seperatorsRegex)) {
+        // Seperater, handle a single word
         var split = el.text.split(seperatorsRegex);
 
+        // Make sure that they haven't entered *just* a single space
         if (split.length > 1) {
-          // Make sure that they haven't entered *just* a single space
           var lastWord = split[split.length - 2];
-          doWord(lastWord);
+
+          if (lastWord.trim().isNotEmpty) {
+            onWord(lastWord);
+          }
         }
       }
     } else {
