@@ -45,10 +45,14 @@ List<String> splitKeepChars(String text, Pattern splitChars) {
 
 onSentence(String sentence) {
   print('Sentence: "$sentence"');
+
+  sentence.split(seperatorsRegex).forEach((word) => onWord(word));
 }
 
 onWord(String word) {
   print('Word: "$word"');
+
+
   audio.play(word);
 }
 
@@ -76,8 +80,6 @@ String generateHtml(String text) {
 
 /// Figure out what to do based on the given character
 handleChar(String char, String text) {
-  print('char: $char');
-  print('text: $text');
   if (char.contains(punctuationRegex)) {
     // Punctuation, handle sentence
     var split = text.split(punctuationRegex);
@@ -92,7 +94,6 @@ handleChar(String char, String text) {
   } else if (char.contains(seperatorsRegex)) {
     // Seperater, handle a single word
     var split = text.split(seperatorsRegex);
-    print('split: $split');
 
     if (split.length > 0) {
       var lastWord = split[split.length - 1].trim();
