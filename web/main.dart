@@ -74,44 +74,48 @@ String generateHtml(String text) {
   return builtHtml;
 }
 
+/// Figure out what to do based on the given character
+handleChar(String char, String text) {
+  print('char: $char');
+  print('text: $text');
+  if (char.contains(punctuationRegex)) {
+    // Punctuation, handle sentence
+    var split = text.split(punctuationRegex);
+
+    if (split.length > 0) {
+      var lastSentence = split[split.length - 1].trim();
+
+      if (lastSentence.isNotEmpty) {
+        onSentence(lastSentence);
+      }
+    }
+  } else if (char.contains(seperatorsRegex)) {
+    // Seperater, handle a single word
+    var split = text.split(seperatorsRegex);
+    print('split: $split');
+
+    if (split.length > 0) {
+      var lastWord = split[split.length - 1].trim();
+
+      if (lastWord.isNotEmpty) {
+        onWord(lastWord);
+      }
+    }
+  }
+}
+
 /// Figure out what was last typed and what to do about it
 /// Returns any change to the element text that is required
-String parsedTyped(String elText, String lastText) {
-  if (elText.length > lastText.length + 1) {
-    // Entered in more than one character in a single tick
-    // Don't allow this
-    // This makes it easier for me to pick characters as they're coming in
-    // Copy and pasting text in doesn't make that easy. Hopefully this doesn't
-    // Cause other issues
-    elText = lastText;
-  } else if (elText.length == lastText.length + 1) {
-    // Typed one character
-    var enteredChar = elText[elText.length - 1];
-
-    if (enteredChar.contains(punctuationRegex)) {
-      // Punctuation, handle sentence
-      var split = elText.split(punctuationRegex);
-
-      // Make sure that they haven't entered *just* a punctuation mark
-      if (split.length > 1) {
-        var lastSentence = split[split.length - 2].trim();
-
-        if (lastSentence.isNotEmpty) {
-          onSentence(lastSentence);
-        }
-      }
-    } else if (enteredChar.contains(seperatorsRegex)) {
-      // Seperater, handle a single word
-      var split = elText.split(seperatorsRegex);
-
-      // Make sure that they haven't entered *just* a single space
-      if (split.length > 1) {
-        var lastWord = split[split.length - 2].trim();
-
-        if (lastWord.isNotEmpty) {
-          onWord(lastWord);
-        }
-      }
+String handleTyped(String elText, String lastText) {
+  if (elText.length > lastText.length) {
+    // Iterate over each of the entered in characters (usually but not always
+    // just a single character)
+    for (var i = 0; i < elText.length - lastText.length; i++) {
+      // Get the current charaacter, then all of the text before it
+      // This includes any text that was also entered this frame
+      var char = elText[lastText.length + i];
+      var precedingText = elText.substring(0, lastText.length + i);
+      handleChar(char, precedingText);
     }
   } else {
     // Deleted stuff
@@ -125,9 +129,10 @@ buildOnTypeFunction(html.Element el) {
   var lastText = '';
   return (html.Event e) {
     try {
-      el.text = parsedTyped(el.text, lastText);
+      el.text = handleTyped(el.text, lastText);
     } catch (e) {
       el.text += ' ERROR: $e';
+      print('ERROR: $e');
     }
 
     el.setInnerHtml(generateHtml(el.text));
