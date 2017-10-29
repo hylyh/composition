@@ -1,5 +1,7 @@
 import 'dart:html' as html;
 
+import './audio.dart' as audio;
+
 var punctuation = '.!?,';
 var punctuationRegex = new RegExp('[$punctuation]');
 var seperatorsRegex =
@@ -11,6 +13,8 @@ init() {
     ..getElementById('loading-indicator').style.setProperty('display', 'none')
     ..getElementById('post-load').style.setProperty('display', 'initial')
     ..getElementById('type').focus();
+
+  audio.initAudio();
 }
 
 /// Split the string with the given pattern but keep the characters that
@@ -45,6 +49,7 @@ onSentence(String sentence) {
 
 onWord(String word) {
   print('Word: $word');
+  audio.play();
 }
 
 /// Build the html based on what text is entered
@@ -56,7 +61,6 @@ String generateHtml(String text) {
   var builtHtml = text;
 
   var split = splitKeepChars(text, punctuationRegex);
-  print('split: $split');
   if (split.length > 1) {
     var last = split[split.length - 1];
     builtHtml = split.getRange(0, split.length - 1).map((t) {
@@ -90,9 +94,9 @@ buildOnTypeFunction(html.Element el) {
 
         // Make sure that they haven't entered *just* a punctuation mark
         if (split.length > 1) {
-          var lastSentence = split[split.length - 2];
+          var lastSentence = split[split.length - 2].trim();
 
-          if (lastSentence.trim().isNotEmpty) {
+          if (lastSentence.isNotEmpty) {
             onSentence(lastSentence);
           }
         }
@@ -103,9 +107,9 @@ buildOnTypeFunction(html.Element el) {
 
         // Make sure that they haven't entered *just* a single space
         if (split.length > 1) {
-          var lastWord = split[split.length - 2];
+          var lastWord = split[split.length - 2].trim();
 
-          if (lastWord.trim().isNotEmpty) {
+          if (lastWord.isNotEmpty) {
             onWord(lastWord);
           }
         }
