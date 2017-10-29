@@ -8,6 +8,37 @@ init() {
     ..getElementById('type').focus();
 }
 
+/// Split the string at any one of the characters in the given string
+/// If includeSplitChars is true, includes the character that was split in the
+///  element before it
+List<String> splitAny(String text, String splitChars,
+    {bool includeSplitChars = false}) {
+  var split = new List<String>();
+  var textList = text.split('');
+
+  var shouldSplit = (char) => splitChars.contains(char);
+
+  var curRun = ''; // Accumulates chars between splits
+  textList.forEach((char) {
+    if (shouldSplit(char)) {
+      if (includeSplitChars) {
+        // Include the char that was split in this run
+        curRun += char;
+      }
+      split.add(curRun);
+      curRun = '';
+    } else {
+      // Nothin special, just keep track of it
+      curRun += char;
+    }
+  });
+
+  // Append whatever was left over
+  split.add(curRun);
+
+  return split;
+}
+
 /// Build the html based on what text is entered
 ///
 /// What happens:
@@ -16,7 +47,7 @@ init() {
 String generateHtml(String text) {
   var builtHtml = text;
 
-  var split = builtHtml.split('.');
+  var split = splitAny(text, '.!?', includeSplitChars: true);
   print('split: $split');
   if (split.length > 1) {
     var last = split[split.length - 1];
@@ -25,7 +56,7 @@ String generateHtml(String text) {
     }).toList();
 
     builtHtml.add(last);
-    builtHtml = builtHtml.join('.</span>');
+    builtHtml = builtHtml.join('</span>');
   }
 
   return builtHtml;
