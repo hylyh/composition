@@ -74,47 +74,60 @@ String generateHtml(String text) {
   return builtHtml;
 }
 
+/// Figure out what was last typed and what to do about it
+/// Returns any change to the element text that is required
+String parsedTyped(String elText, String lastText) {
+  if (elText.length > lastText.length + 1) {
+    // Entered in more than one character in a single tick
+    // Don't allow this
+    // This makes it easier for me to pick characters as they're coming in
+    // Copy and pasting text in doesn't make that easy. Hopefully this doesn't
+    // Cause other issues
+    elText = lastText;
+  } else if (elText.length == lastText.length + 1) {
+    // Typed one character
+    var enteredChar = elText[elText.length - 1];
+
+    if (enteredChar.contains(punctuationRegex)) {
+      // Punctuation, handle sentence
+      var split = elText.split(punctuationRegex);
+
+      // Make sure that they haven't entered *just* a punctuation mark
+      if (split.length > 1) {
+        var lastSentence = split[split.length - 2].trim();
+
+        if (lastSentence.isNotEmpty) {
+          onSentence(lastSentence);
+        }
+      }
+    } else if (enteredChar.contains(seperatorsRegex)) {
+      // Seperater, handle a single word
+      var split = elText.split(seperatorsRegex);
+
+      // Make sure that they haven't entered *just* a single space
+      if (split.length > 1) {
+        var lastWord = split[split.length - 2].trim();
+
+        if (lastWord.isNotEmpty) {
+          onWord(lastWord);
+        }
+      }
+    }
+  } else {
+    // Deleted stuff
+  }
+
+  // Return it in case anything changed
+  return elText;
+}
+
 buildOnTypeFunction(html.Element el) {
   var lastText = '';
   return (html.Event e) {
-    if (el.text.length > lastText.length + 1) {
-      // Entered in more than one character in a single tick
-      // Don't allow this
-      // This makes it easier for me to pick characters as they're coming in
-      // Copy and pasting text in doesn't make that easy. Hopefully this doesn't
-      // Cause other issues
-      el.text = lastText;
-    } else if (el.text.length == lastText.length + 1) {
-      // Typed one character
-      var enteredChar = el.text[el.text.length - 1];
-
-      if (enteredChar.contains(punctuationRegex)) {
-        // Punctuation, handle sentence
-        var split = el.text.split(punctuationRegex);
-
-        // Make sure that they haven't entered *just* a punctuation mark
-        if (split.length > 1) {
-          var lastSentence = split[split.length - 2].trim();
-
-          if (lastSentence.isNotEmpty) {
-            onSentence(lastSentence);
-          }
-        }
-      } else if (enteredChar.contains(seperatorsRegex)) {
-        // Seperater, handle a single word
-        var split = el.text.split(seperatorsRegex);
-
-        // Make sure that they haven't entered *just* a single space
-        if (split.length > 1) {
-          var lastWord = split[split.length - 2].trim();
-
-          if (lastWord.isNotEmpty) {
-            onWord(lastWord);
-          }
-        }
-      }
-    } else {
-      // Deleted stuff
+    try {
+      el.text = parsedTyped(el.text, lastText);
+    } catch (e) {
+      el.text += ' ERROR: $e';
     }
 
     el.setInnerHtml(generateHtml(el.text));
