@@ -1,5 +1,10 @@
 import 'dart:html' as html;
 
+var punctuation = '.!?,';
+var punctuationRegex = new RegExp('[$punctuation]');
+var seperatorsRegex =
+    new RegExp('[\\s$punctuation]'); // Punctuation plus whitespace
+
 init() {
   // Clear loading indicator and show content as soon as we're running
   html.document
@@ -8,24 +13,19 @@ init() {
     ..getElementById('type').focus();
 }
 
-/// Split the string at any one of the characters in the given string
-/// If includeSplitChars is true, includes the character that was split in the
-///  element before it
-List<String> splitAny(String text, String splitChars,
-    {bool includeSplitChars = false}) {
+/// Split the string with the given pattern but keep the characters that
+/// are being split on. They keep appended to the split before them.
+List<String> splitKeepChars(String text, Pattern splitChars) {
   var split = new List<String>();
   var textList = text.split('');
 
-  var shouldSplit = (char) => splitChars.contains(char);
+  var shouldSplit = (String char) => char.contains(splitChars);
 
   var curRun = ''; // Accumulates chars between splits
   textList.forEach((char) {
     if (shouldSplit(char)) {
-      if (includeSplitChars) {
-        // Include the char that was split in this run
-        curRun += char;
-      }
-      split.add(curRun);
+      // Keep the char we're splitting on in the previous split
+      split.add(curRun + char);
       curRun = '';
     } else {
       // Nothin special, just keep track of it
@@ -39,6 +39,10 @@ List<String> splitAny(String text, String splitChars,
   return split;
 }
 
+doWord(String word) {
+  print(word);
+}
+
 /// Build the html based on what text is entered
 ///
 /// What happens:
@@ -47,7 +51,7 @@ List<String> splitAny(String text, String splitChars,
 String generateHtml(String text) {
   var builtHtml = text;
 
-  var split = splitAny(text, '.!?', includeSplitChars: true);
+  var split = splitKeepChars(text, punctuationRegex);
   print('split: $split');
   if (split.length > 1) {
     var last = split[split.length - 1];
@@ -72,6 +76,21 @@ buildOnTypeFunction(html.Element el) {
       // Copy and pasting text in doesn't make that easy. Hopefully this doesn't
       // Cause other issues
       el.text = lastText;
+    } else if (el.text.length == lastText.length + 1) {
+      // Typed one character
+      var enteredChar = el.text[el.text.length - 1];
+
+      if (enteredChar.contains(seperatorsRegex)) {
+        var split = el.text.split(seperatorsRegex);
+
+        if (split.length > 1) {
+          // Make sure that they haven't entered *just* a single space
+          var lastWord = split[split.length - 2];
+          doWord(lastWord);
+        }
+      }
+    } else {
+      // Deleted stuff
     }
 
     el.setInnerHtml(generateHtml(el.text));
