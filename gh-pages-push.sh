@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# License: MIT (c) 2017 jenn kaplan and j hayley
 # Build and push just the build directory to the gh-pages branch
 # gh-pages branch must already exist
 # Warning: Force pushes to gh-pages every time,
