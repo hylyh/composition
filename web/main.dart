@@ -100,7 +100,6 @@ buildOnTypeFunction(html.Element el) {
             onSentence(lastSentence);
           }
         }
-
       } else if (enteredChar.contains(seperatorsRegex)) {
         // Seperater, handle a single word
         var split = el.text.split(seperatorsRegex);
