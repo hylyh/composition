@@ -65,6 +65,15 @@ String generateHtml(String text) {
 buildOnTypeFunction(html.Element el) {
   var lastText = '';
   return (html.Event e) {
+    if (el.text.length > lastText.length + 1) {
+      // Entered in more than one character in a single tick
+      // Don't allow this
+      // This makes it easier for me to pick characters as they're coming in
+      // Copy and pasting text in doesn't make that easy. Hopefully this doesn't
+      // Cause other issues
+      el.text = lastText;
+    }
+
     el.setInnerHtml(generateHtml(el.text));
 
     // Set cursor to end of text
