@@ -10,29 +10,42 @@ String baseUrl = './audio/';
 class RegExpToBuffer {
   String description;
   RegExp regexp;
-  audio.AudioBuffer buffer;
-  RegExpToBuffer(this.description, this.regexp, this.buffer);
+  String fileName;
+
+  audio.AudioBuffer _buffer;
+
+  RegExpToBuffer(this.description, this.regexp, this.fileName);
+
+  load() async {
+    var req = await html.HttpRequest.request(path.join(baseUrl, this.fileName),
+        responseType: 'arraybuffer');
+
+    var buffer = req.response as data.ByteBuffer;
+    this._buffer = await context.decodeAudioData(buffer);
+  }
 
   bool matches(String text) => regexp.hasMatch(text);
+
+  get loaded => _buffer != null;
+  get buffer => _buffer;
 
   @override
   String toString() => description;
 }
 
-List<RegExpToBuffer> buffers = new List();
+List<RegExpToBuffer> buffers = [
+  new RegExpToBuffer(
+      'First person (I)',
+      new RegExp(r"^i('?m)?$", caseSensitive: false),
+      'SFX_StarNoise_Loud_01.ogg')
+];
 
 initAudio() async {
   context = new audio.AudioContext();
 
   // Load audio files
-  var req = await html.HttpRequest.request(
-      path.join(baseUrl, 'SFX_StarNoise_Loud_01.ogg'),
-      responseType: 'arraybuffer');
-
-  var buffer = req.response as data.ByteBuffer;
-  var audioBuffer = await context.decodeAudioData(buffer);
-  buffers.add(new RegExpToBuffer('First person (I)',
-      new RegExp(r"^i('?m)?$", caseSensitive: false), audioBuffer));
+  // There's got to be a better way to do this right? (i.e. not awaiting)
+  buffers.forEach((buffer) async => await buffer.load());
 }
 
 audio.AudioBufferSourceNode createSourceBuffer() {
