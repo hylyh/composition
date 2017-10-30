@@ -1,6 +1,7 @@
 import 'dart:html' as html;
 
 import './audio.dart' as audio;
+import './parse.dart' as parse;
 
 var punctuation = '.!?,';
 var punctuationRegex = new RegExp('[$punctuation]');
@@ -15,6 +16,7 @@ init() {
     ..getElementById('type').focus();
 
   audio.initAudio();
+  parse.initBigrams();
 }
 
 /// Split the string with the given pattern but keep the characters that
@@ -52,8 +54,8 @@ onSentence(String sentence) {
 onWord(String word) {
   print('Word: "$word"');
 
-
   audio.play(word);
+  print(parse.getBigrams(word));
 }
 
 /// Build the html based on what text is entered
