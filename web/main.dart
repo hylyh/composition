@@ -126,25 +126,50 @@ String handleTyped(String elText, String lastText) {
   return elText;
 }
 
+forceCursorToEnd(html.Element el) {
+  var range = html.document.createRange()
+    ..selectNodeContents(el)
+    ..collapse(false);
+  html.window.getSelection()
+    ..removeAllRanges()
+    ..addRange(range);
+}
+
+/// I don't even know
+/// From https://jsfiddle.net/TjXEG/1/
+getCursorPosition(html.Element el) {
+  var range = html.window.getSelection().getRangeAt(0);
+  var preCaretRange = range.cloneRange();
+  preCaretRange.selectNodeContents(el);
+  preCaretRange.setEnd(range.endContainer, range.endOffset);
+  return preCaretRange.cloneContents().innerHtml.length;
+}
+
+bool isCursorAtEnd(html.Element el) {
+  return getCursorPosition(el) == el.innerHtml.length;
+}
+
 buildOnTypeFunction(html.Element el) {
   var lastText = '';
   return (html.Event e) {
+
+    var curText = el.text;
+
+    if (!isCursorAtEnd(el)) {
+      // Sorry typing is only allowed at the end for mechanical reasons
+      curText = lastText;
+    }
+
     try {
-      el.text = handleTyped(el.text, lastText);
+      curText = handleTyped(curText, lastText);
     } catch (e) {
-      el.text += ' ERROR: $e';
+      curText += ' ERROR: $e';
       print('ERROR: $e');
     }
 
-    el.setInnerHtml(generateHtml(el.text));
+    el.setInnerHtml(generateHtml(curText));
 
-    // Set cursor to end of text
-    var range = html.document.createRange()
-      ..selectNodeContents(el)
-      ..collapse(false);
-    html.window.getSelection()
-      ..removeAllRanges()
-      ..addRange(range);
+    forceCursorToEnd(el);
 
     lastText = el.text;
   };
