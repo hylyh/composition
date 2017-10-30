@@ -35,9 +35,17 @@ class RegExpToBuffer {
 
 List<RegExpToBuffer> buffers = [
   new RegExpToBuffer(
-      'First person (I)',
-      new RegExp(r"^i('?m)?$", caseSensitive: false),
-      'SFX_StarNoise_Loud_01.ogg')
+      'First person',
+      new RegExp(r"^(i('?m)?|me)$", caseSensitive: false),
+      'SFX_StarNoise_Loud_01.ogg'),
+  new RegExpToBuffer(
+      'Second person',
+      new RegExp(r"^(you'?(re?)?)$", caseSensitive: false),
+      'SFX_StarNoise_Loud_02.ogg'),
+  new RegExpToBuffer(
+      'Third person',
+      new RegExp(r"^(her?|she|the(y|ir))$", caseSensitive: false),
+      'SFX_StarNoise_Loud_04.ogg'),
 ];
 
 initAudio() async {
