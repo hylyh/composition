@@ -25,5 +25,7 @@ List<String> getBigrams(String word) {
       bigrams.add(testBigram);
     }
   }
+
+  print(bigrams);
   return bigrams;
 }

@@ -9,21 +9,38 @@ audio.AudioContext context;
 String baseUrl = './audio/';
 
 int numTracks = 7;
-int track = 1;
+int startTrack = 1;
 
-List<String> trackNames = new List<String>(numTracks)
-    .map((_) => 'SFX_StarNoise_Loud_0${track++}.ogg');
-
-List<audio.AudioBuffer> buffers;
+List<audio.AudioBuffer> wordBuffers;
+List<audio.AudioBuffer> sentenceBuffers;
 
 loadBuffers() async {
-  buffers = await Future.wait(trackNames.map((name) async {
-    var req = await html.HttpRequest
-        .request(path.join(baseUrl, name), responseType: 'arraybuffer');
+  List<String> wordTrackNames;
+  {
+    // Cheat a bit and make this a seperate block to use the variable i twice
+    int i = startTrack;
+    wordTrackNames = new List<String>(numTracks)
+        .map((_) => 'SFX_StarNoise_Loud_0${i++}.ogg');
+  }
 
-    var bytebuffer = req.response as data.ByteBuffer;
-    return await context.decodeAudioData(bytebuffer);
-  }));
+  List<String> sentenceTrackNames;
+  {
+    // Same as above
+    int i = startTrack;
+    sentenceTrackNames = new List<String>(numTracks)
+        .map((_) => 'SFX_StarNoise_Soft_0${i++}.ogg');
+  }
+
+  var loadTracks = (names) => Future.wait(names.map((name) async {
+        var req = await html.HttpRequest
+            .request(path.join(baseUrl, name), responseType: 'arraybuffer');
+
+        var bytebuffer = req.response as data.ByteBuffer;
+        return await context.decodeAudioData(bytebuffer);
+      }));
+
+  wordBuffers = await loadTracks(wordTrackNames);
+  sentenceBuffers = await loadTracks(sentenceTrackNames);
 }
 
 initAudio() async {
@@ -40,8 +57,18 @@ audio.AudioBufferSourceNode createSourceBuffer() {
 }
 
 /// Given an arbitrarily large number, modulo it and play a buffer based on it
-play(int num) {
+/// If isWord is true, plays the word sound, if false, plays the sentence sound
+play(int num, bool isWord) {
   createSourceBuffer()
-    ..buffer = buffers[num % buffers.length]
+    ..buffer = (isWord ? wordBuffers : sentenceBuffers)[num]
     ..start(context.currentTime);
+}
+
+/// Deterministically generated an abitrarily fuzzy hash based on the given
+/// bigrams
+int genAudioHash(List<String> bigrams) {
+  var sum = (List<int> nums) => nums.reduce((v, e) => v + e);
+  var bigramToInt = (String bigram) => sum(bigram.codeUnits);
+
+  return sum(bigrams.map(bigramToInt)) % numTracks;
 }

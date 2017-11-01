@@ -45,32 +45,37 @@ List<String> splitKeepChars(String text, Pattern splitChars) {
   return split;
 }
 
-/// Deterministically generated an abitrarily fuzzy hash based on the given
-/// bigrams
-int genHash(List<String> bigrams) {
-  var sum = (List<int> nums) => nums.reduce((v, e) => v + e);
-  var bigramToInt = (String bigram) => sum(bigram.codeUnits);
-
-  return sum(bigrams.map(bigramToInt));
-}
+bool validWord(int numBigrams, String word) => numBigrams >= word.length / 3;
 
 onSentence(String sentence) {
   print('Sentence: "$sentence"');
 
-  sentence.split(seperatorsRegex).forEach((word) => onWord(word));
+  // Make sure we don't double up on sounds
+  Set<int> playedHashes = new Set();
+  sentence.split(seperatorsRegex).forEach((word) {
+    var cleanedWord = parse.cleanWord(word);
+    var bigrams = parse.getBigrams(cleanedWord);
+    if (validWord(bigrams.length, cleanedWord)) {
+      var hash = audio.genAudioHash(bigrams);
+
+      // Make sure we're not playing the same hash twice
+      if (!playedHashes.contains(hash)) {
+        audio.play(hash, false);
+        playedHashes.add(hash);
+      }
+    }
+  });
 }
 
 onWord(String word) {
   print('Word: "$word"');
 
-  word = parse.cleanWord(word);
-
-  var bigrams = parse.getBigrams(word);
-
-  if (bigrams.length > word.length / 3) {
-    audio.play(genHash(bigrams));
+  var cleanedWord = parse.cleanWord(word);
+  var bigrams = parse.getBigrams(cleanedWord);
+  if (validWord(bigrams.length, cleanedWord)) {
+    var hash = audio.genAudioHash(bigrams);
+    audio.play(hash, true);
   }
-  print(bigrams);
 }
 
 /// Build the html based on what text is entered
@@ -108,7 +113,10 @@ handleChar(String char, String text) {
         onSentence(lastSentence);
       }
     }
-  } else if (char.contains(seperatorsRegex)) {
+  }
+
+  // Can also do the onWord even when onSentence is called
+  if (char.contains(seperatorsRegex)) {
     // Seperater, handle a single word
     var split = text.split(seperatorsRegex);
 
@@ -169,7 +177,6 @@ bool isCursorAtEnd(html.Element el) {
 buildOnTypeFunction(html.Element el) {
   var lastText = '';
   return (html.Event e) {
-
     var curText = el.text;
 
     if (!isCursorAtEnd(el)) {
