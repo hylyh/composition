@@ -13,7 +13,7 @@ initBigrams() async {
 }
 
 String cleanWord(String word) =>
-    word.toLowerCase().replaceAll(new RegExp(r'[^a-z]'), '');
+    word.replaceAll(new RegExp(r'[^a-zA-Z]'), '');
 
 List<String> getBigrams(String word) {
   List<String> bigrams = new List();
@@ -21,7 +21,7 @@ List<String> getBigrams(String word) {
   for (var i = 0; i < word.length - 1; i++) {
     // Compare each letter to the letter after it and see if its in the word
     var testBigram = word.substring(i, i + 2);
-    if (allBigrams.contains(testBigram)) {
+    if (allBigrams.contains(testBigram.toLowerCase())) {
       bigrams.add(testBigram);
     }
   }

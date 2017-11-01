@@ -45,6 +45,15 @@ List<String> splitKeepChars(String text, Pattern splitChars) {
   return split;
 }
 
+/// Deterministically generated an abitrarily fuzzy hash based on the given
+/// bigrams
+int genHash(List<String> bigrams) {
+  var sum = (List<int> nums) => nums.reduce((v, e) => v + e);
+  var bigramToInt = (String bigram) => sum(bigram.codeUnits);
+
+  return sum(bigrams.map(bigramToInt));
+}
+
 onSentence(String sentence) {
   print('Sentence: "$sentence"');
 
@@ -59,7 +68,7 @@ onWord(String word) {
   var bigrams = parse.getBigrams(word);
 
   if (bigrams.length > word.length / 3) {
-    audio.play(bigrams.length * 123);
+    audio.play(genHash(bigrams));
   }
   print(bigrams);
 }
