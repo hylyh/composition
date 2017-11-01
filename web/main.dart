@@ -54,8 +54,14 @@ onSentence(String sentence) {
 onWord(String word) {
   print('Word: "$word"');
 
-  audio.play(word);
-  print(parse.getBigrams(word));
+  word = parse.cleanWord(word);
+
+  var bigrams = parse.getBigrams(word);
+
+  if (bigrams.length > word.length / 3) {
+    audio.play(bigrams.length * 123);
+  }
+  print(bigrams);
 }
 
 /// Build the html based on what text is entered
