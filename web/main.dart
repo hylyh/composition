@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:html' as html;
 
 import './audio.dart' as audio;
@@ -138,7 +139,7 @@ String handleTyped(String elText, String lastText) {
     // just a single character)
     for (var i = 0; i < elText.length - lastText.length; i++) {
       // Get the current charaacter, then all of the text before it
-      // This includes any text that was also entered this frame
+      // This does not include any text that was also entered this frame
       var char = elText[lastText.length + i];
       var precedingText = elText.substring(0, lastText.length + i);
       handleChar(char, precedingText);
@@ -193,9 +194,43 @@ buildOnTypeFunction(html.Element el) {
   };
 }
 
+play() async {
+  playing = true;
+  html.document.getElementById('play').text = 'stop';
+
+  var el = html.document.getElementById('type');
+
+  var curText = '';
+  await Future.forEach(el.text.split(''), (char) async {
+    if (!playing) return;
+
+    handleChar(char, curText);
+    curText += char;
+    await new Future.delayed(new Duration(milliseconds: 100));
+  });
+
+  stop();
+}
+
+stop() {
+  playing = false;
+  html.document.getElementById('play').text = 'play';
+}
+
+var playing = false;
+onPlayClick(html.MouseEvent e) {
+  if (playing) {
+    stop();
+  } else {
+    play();
+  }
+}
+
 main() {
   init();
 
   var el = html.document.getElementById('type');
   el.onInput.listen(buildOnTypeFunction(el));
+
+  html.document.getElementById('play').onClick.listen(onPlayClick);
 }
