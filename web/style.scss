@@ -17,7 +17,14 @@ body {
     }
 
     #play {
-        display: inline;
+        font-size: .5em;
+        display: inline-block;
+        width: 100px;
+        padding: 10px;
+        margin-left: 5px;
+        background-color: transparent;
+        border-radius: 10px;
+        border-color: 1px solid black;
     }
 
     #type {

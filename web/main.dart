@@ -68,6 +68,8 @@ onSentence(String sentence) async {
     first = false;
 
     var cleanedWord = parse.cleanWord(word);
+    if (cleanedWord.isEmpty) return;
+
     var bigrams = parse.getBigrams(cleanedWord);
     if (validWord(bigrams.length, cleanedWord)) {
       var hash = audio.genAudioHash(bigrams);
@@ -78,6 +80,8 @@ onSentence(String sentence) async {
 }
 
 onWord(String word) async {
+  if (word.isEmpty) return;
+
   print('Word: "$word"');
 
   var cleanedWord = parse.cleanWord(word);
@@ -217,7 +221,7 @@ play() async {
 
 stop() {
   playing = false;
-  html.document.getElementById('play').text = 'play';
+  html.document.getElementById('play').text = 'playback';
 }
 
 var playing = false;
