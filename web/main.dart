@@ -52,13 +52,15 @@ List<String> splitKeepChars(String text, Pattern splitChars) {
 bool validWord(int numBigrams, String word) => numBigrams >= word.length / 3;
 
 onSentence(String sentence) async {
+  if (sentence.isEmpty) return;
+
   print('Sentence: "$sentence"');
 
   // We don't delay the first word in a sentence
   var first = true;
 
   // Play each word's sound in sequence
-  Future.forEach(sentence.split(seperatorsRegex), (word) async {
+  await Future.forEach(sentence.split(seperatorsRegex), (word) async {
     if (!first) {
       var delay = word.length * wordDelay;
       await new Future.delayed(new Duration(milliseconds: delay));
@@ -207,13 +209,8 @@ play() async {
 
   var el = html.document.getElementById('type');
 
-  var curText = '';
-  await Future.forEach(el.text.split(''), (String char) async {
-    if (!playing) return;
-
-    handleChar(char, curText);
-    curText += char;
-  });
+  await Future.forEach(el.text.split(punctuationRegex),
+      (sentence) async => await onSentence(sentence));
 
   stop();
 }
