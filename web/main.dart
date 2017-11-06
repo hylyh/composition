@@ -162,7 +162,7 @@ forceCursorToEnd(html.Element el) {
 
 /// I don't even know
 /// From https://jsfiddle.net/TjXEG/1/
-getCursorPosition(html.Element el) {
+int getCursorPosition(html.Element el) {
   var range = html.window.getSelection().getRangeAt(0);
   var preCaretRange = range.cloneRange();
   preCaretRange.selectNodeContents(el);
@@ -179,21 +179,15 @@ buildOnTypeFunction(html.Element el) {
   return (html.Event e) {
     var curText = el.text;
 
-    if (!isCursorAtEnd(el)) {
-      // Sorry typing is only allowed at the end for mechanical reasons
-      curText = lastText;
-    }
-
     try {
-      curText = handleTyped(curText, lastText);
+      if (isCursorAtEnd(el)) {
+        // Only do stuff when at end of textbox
+        curText = handleTyped(curText, lastText);
+      }
     } catch (e) {
       curText += ' ERROR: $e';
       print('ERROR: $e');
     }
-
-    el.setInnerHtml(generateHtml(curText));
-
-    forceCursorToEnd(el);
 
     lastText = el.text;
   };
