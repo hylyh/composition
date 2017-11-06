@@ -20,12 +20,16 @@ body {
     #play {
         font-size: .5em;
         display: inline-block;
-        width: 100px;
-        padding: 10px;
+        width: 50px;
+        padding: 2px;
         margin-left: 5px;
-        background-color: transparent;
-        border-radius: 10px;
-        border-color: 1px solid black;
+        padding: 5px;
+    }
+
+    #hint {
+        font-size: .4em;
+        font-weight: lighter;
+        margin: 0;
     }
 
     #type {
