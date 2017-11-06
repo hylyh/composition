@@ -9,6 +9,9 @@ var punctuationRegex = new RegExp('[$punctuation]');
 var seperatorsRegex =
     new RegExp('[\\s$punctuation]'); // Punctuation plus whitespace
 
+var wordDelay = 100;
+var punctuationDelay = 500;
+
 init() {
   // Clear loading indicator and show content as soon as we're running
   html.document
@@ -48,27 +51,31 @@ List<String> splitKeepChars(String text, Pattern splitChars) {
 
 bool validWord(int numBigrams, String word) => numBigrams >= word.length / 3;
 
-onSentence(String sentence) {
+onSentence(String sentence) async {
   print('Sentence: "$sentence"');
 
-  // Make sure we don't double up on sounds
-  Set<int> playedHashes = new Set();
-  sentence.split(seperatorsRegex).forEach((word) {
+  // We don't delay the first word in a sentence
+  var first = true;
+
+  // Play each word's sound in sequence
+  Future.forEach(sentence.split(seperatorsRegex), (word) async {
+    if (!first) {
+      var delay = word.length * wordDelay;
+      await new Future.delayed(new Duration(milliseconds: delay));
+    }
+    first = false;
+
     var cleanedWord = parse.cleanWord(word);
     var bigrams = parse.getBigrams(cleanedWord);
     if (validWord(bigrams.length, cleanedWord)) {
       var hash = audio.genAudioHash(bigrams);
 
-      // Make sure we're not playing the same hash twice
-      if (!playedHashes.contains(hash)) {
-        audio.play(hash, false);
-        playedHashes.add(hash);
-      }
+      audio.play(hash, false);
     }
   });
 }
 
-onWord(String word) {
+onWord(String word) async {
   print('Word: "$word"');
 
   var cleanedWord = parse.cleanWord(word);
@@ -206,16 +213,6 @@ play() async {
 
     handleChar(char, curText);
     curText += char;
-
-    var delay = 0;
-    if (char.contains(new RegExp(r'\w'))) {
-      // Delay for word
-      delay = 100;
-    } else {
-      // Delay for puncuation
-      delay = 500;
-    }
-    await new Future.delayed(new Duration(milliseconds: delay));
   });
 
   stop();
