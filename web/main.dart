@@ -201,12 +201,21 @@ play() async {
   var el = html.document.getElementById('type');
 
   var curText = '';
-  await Future.forEach(el.text.split(''), (char) async {
+  await Future.forEach(el.text.split(''), (String char) async {
     if (!playing) return;
 
     handleChar(char, curText);
     curText += char;
-    await new Future.delayed(new Duration(milliseconds: 100));
+
+    var delay = 0;
+    if (char.contains(new RegExp(r'\w'))) {
+      // Delay for word
+      delay = 100;
+    } else {
+      // Delay for puncuation
+      delay = 500;
+    }
+    await new Future.delayed(new Duration(milliseconds: delay));
   });
 
   stop();
