@@ -16,3 +16,5 @@ pubspec.lock
 doc/api/
 
 # End of https://www.gitignore.io/api/dart
+
+.DS_Store

@@ -8,7 +8,7 @@ import 'package:path/path.dart' as path;
 audio.AudioContext context;
 String baseUrl = './audio/';
 
-int numTracks = 7;
+int numTracks = 25;
 int startTrack = 1;
 
 List<audio.AudioBuffer> wordBuffers;
@@ -20,7 +20,7 @@ loadBuffers() async {
     // Cheat a bit and make this a seperate block to use the variable i twice
     int i = startTrack;
     wordTrackNames = new List<String>(numTracks)
-        .map((_) => 'SFX_StarNoise_Loud_0${i++}.ogg');
+        .map((_) => 'WordPing${i++}.ogg');
   }
 
   List<String> sentenceTrackNames;
@@ -28,7 +28,7 @@ loadBuffers() async {
     // Same as above
     int i = startTrack;
     sentenceTrackNames = new List<String>(numTracks)
-        .map((_) => 'SFX_StarNoise_Soft_0${i++}.ogg');
+        .map((_) => 'SentPad${i++}.ogg');
   }
 
   var loadTracks = (names) => Future.wait(names.map((name) async {
