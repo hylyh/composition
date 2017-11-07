@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+
+    <title>composition</title>
+</head>
+
+<body>
+    <div id="app-container">
+        <div id="loading-indicator">Loading...</div>
+
+        <div id="post-load" style="display:none">
+            <div id="prompt">Tell me about yourself
+
+                <div id="hint">please turn on your sound <button id="play">playback</button></div>
+            </div>
+            <div id="type" contenteditable="true"></div>
+        </div>
+        <div id="credits">
+            code by
+            <a href="//twitter.com/imjayhay">@imjayhay</a>. sounds by
+            <a href="//twitter.com/kuraine">@kuraine</a>. for
+            <a href="//itch.io/jam/self-care-jam-2">self care jam 2</a>
+            <3 </div>
+        </div>
+        <script type="application/dart" src="./main.dart"></script>
+        <script src="packages/browser/dart.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,42 @@
+@import url("https://fonts.googleapis.com/css?family=Roboto:300,400");
+body {
+  width: 600px;
+  height: 100%;
+  max-width: 100%;
+  margin: auto;
+  font-family: 'Roboto', sans-serif;
+  background-color: white; }
+
+#app-container {
+  margin: 10px; }
+  #app-container #prompt {
+    text-align: center;
+    font-size: 2em; }
+  #app-container #play {
+    display: inline-block;
+    padding: 2px;
+    margin-left: 5px;
+    padding: 5px; }
+  #app-container #hint {
+    font-size: .4em;
+    font-weight: lighter;
+    margin: 0; }
+  #app-container #type {
+    font-size: 1.5em;
+    margin-top: 5px;
+    padding: 5px;
+    font-weight: lighter;
+    line-height: 1.2em;
+    height: 80vh;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    color: black;
+    cursor: default; }
+    #app-container #type .sentence {
+      color: black; }
+  #app-container #credits {
+    font-weight: lighter; }
+    #app-container #credits a {
+      color: black; }
+
+[contenteditable="true"]:focus {
+  outline: none; }
